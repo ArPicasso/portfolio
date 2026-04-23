@@ -3,83 +3,103 @@
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 
-const COLORS = ["#00ff88", "#00d4ff", "#a855f7"];
-const AVATARS = ["АМ", "МС", "ДК"];
+const META = [
+  { color: "var(--green)", avatar: "АМ" },
+  { color: "var(--blue)",  avatar: "МС" },
+  { color: "var(--purple)", avatar: "ДК" },
+];
 
 export default function Testimonials() {
   const t = useTranslations("testimonials");
 
-  const testimonials = [1, 2, 3].map((n, i) => ({
-    name: t(`t${n}_name`),
-    role: t(`t${n}_role`),
-    text: t(`t${n}_text`),
-    color: COLORS[i],
-    avatar: AVATARS[i],
+  const items = [1, 2, 3].map((n, i) => ({
+    name:   t(`t${n}_name`),
+    role:   t(`t${n}_role`),
+    text:   t(`t${n}_text`),
+    color:  META[i].color,
+    avatar: META[i].avatar,
   }));
 
+  const rawToHex = (v: string) => {
+    const m: Record<string, string> = { "var(--green)": "#00ff88", "var(--blue)": "#00d4ff", "var(--purple)": "#a78bfa" };
+    return m[v] ?? "#00ff88";
+  };
+
   return (
-    <section id="testimonials" style={{ maxWidth: 1200, margin: "0 auto", padding: "90px 24px" }}>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-        style={{ marginBottom: 48 }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-          <span style={{ color: "#00ff88", fontSize: 14, fontWeight: 600 }}>{"// "}</span>
-          <span style={{ color: "#64748b", fontSize: 13 }}>{t("section_num")}</span>
-          <h2 style={{ fontSize: "clamp(24px, 3vw, 36px)", fontWeight: 700, color: "#e2e8f0" }}>
+    <section id="testimonials" className="section-wrap">
+      <div className="container">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }} transition={{ duration: 0.6 }}
+          style={{ marginBottom: 56 }}
+        >
+          <div className="section-label">{t("section_num")} testimonials</div>
+          <h2 style={{ fontSize: "clamp(26px, 3vw, 40px)", fontWeight: 800, color: "var(--text-1)", letterSpacing: "-0.5px" }}>
             {t("title")}
           </h2>
-        </div>
-      </motion.div>
+        </motion.div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 20 }}>
-        {testimonials.map((testimonial, i) => (
-          <motion.div
-            key={testimonial.name}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.1, duration: 0.5 }}
-            className="card"
-            style={{ padding: 24 }}
-          >
-            <div style={{ display: "flex", gap: 4, marginBottom: 16 }}>
-              {Array(5).fill(0).map((_, j) => (
-                <span key={j} style={{ color: "#fbbf24", fontSize: 14 }}>★</span>
-              ))}
-            </div>
-            <p style={{ fontSize: 14, color: "#94a3b8", lineHeight: 1.7, marginBottom: 20 }}>
-              &ldquo;{testimonial.text}&rdquo;
-            </p>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <div
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: "50%",
-                  background: `${testimonial.color}20`,
-                  border: `1px solid ${testimonial.color}40`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 12,
-                  fontWeight: 700,
-                  color: testimonial.color,
-                  flexShrink: 0,
-                }}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 18 }}>
+          {items.map((item, i) => {
+            const hex = rawToHex(item.color);
+            return (
+              <motion.div
+                key={item.name}
+                initial={{ opacity: 0, y: 28 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                className="card"
+                style={{ padding: 28, position: "relative", overflow: "hidden" }}
               >
-                {testimonial.avatar}
-              </div>
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: "#e2e8f0" }}>{testimonial.name}</div>
-                <div style={{ fontSize: 12, color: "#64748b" }}>{testimonial.role}</div>
-              </div>
-            </div>
-          </motion.div>
-        ))}
+                {/* Decorative large quote mark */}
+                <div
+                  aria-hidden
+                  style={{
+                    position: "absolute", top: 12, right: 20,
+                    fontSize: 80, fontWeight: 900,
+                    color: `${hex}08`,
+                    lineHeight: 1, userSelect: "none",
+                    fontFamily: "Georgia, serif",
+                  }}
+                >
+                  "
+                </div>
+
+                {/* Stars */}
+                <div style={{ display: "flex", gap: 3, marginBottom: 18 }}>
+                  {Array(5).fill(0).map((_, j) => (
+                    <span key={j} style={{ color: "#fbbf24", fontSize: 13 }}>★</span>
+                  ))}
+                </div>
+
+                <p style={{
+                  fontSize: 14, color: "var(--text-2)", lineHeight: 1.78,
+                  marginBottom: 24, position: "relative", zIndex: 1,
+                }}>
+                  &ldquo;{item.text}&rdquo;
+                </p>
+
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{
+                    width: 40, height: 40, borderRadius: "50%",
+                    background: `${hex}15`, border: `1px solid ${hex}33`,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 12, fontWeight: 700, color: hex, flexShrink: 0,
+                  }}>
+                    {item.avatar}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-1)", letterSpacing: "-0.1px" }}>
+                      {item.name}
+                    </div>
+                    <div style={{ fontSize: 12, color: "var(--text-3)", marginTop: 2 }}>{item.role}</div>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

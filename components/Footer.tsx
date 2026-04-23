@@ -3,21 +3,48 @@
 import { useTranslations } from "next-intl";
 
 export default function Footer() {
-  const t = useTranslations("footer");
+  const t    = useTranslations("footer");
   const year = new Date().getFullYear();
 
   return (
-    <footer style={{ borderTop: "1px solid #1e1e2e", padding: "32px 24px", textAlign: "center" }}>
-      <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-        <div style={{ marginBottom: 16 }}>
-          <span style={{ fontWeight: 700, fontSize: 16, color: "#e2e8f0" }}>
-            {"<"}<span className="neon-text">dev</span>{" />"}
-          </span>
+    <footer style={{
+      borderTop: "1px solid var(--border)",
+      padding: "40px 28px",
+      position: "relative",
+      overflow: "hidden",
+    }}>
+      {/* Ambient glow */}
+      <div aria-hidden style={{
+        position: "absolute", bottom: 0, left: "50%",
+        transform: "translateX(-50%)",
+        width: "60%", height: "1px",
+        background: "linear-gradient(90deg, transparent, rgba(0,255,136,0.15), transparent)",
+        pointerEvents: "none",
+      }} />
+
+      <div className="container">
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
+          {/* Logo */}
+          <a href="#" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 2 }}>
+            <span style={{ fontWeight: 700, fontSize: 16, color: "var(--text-1)" }}>{"<"}</span>
+            <span style={{
+              fontWeight: 800, fontSize: 16,
+              background: "linear-gradient(135deg, var(--green), var(--blue))",
+              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
+            }}>dev</span>
+            <span style={{ fontWeight: 700, fontSize: 16, color: "var(--text-1)" }}>{" />"}</span>
+          </a>
+
+          {/* Status */}
+          <p style={{ color: "var(--text-3)", fontSize: 13 }}>
+            {t("status").replace("{year}", String(year))}
+          </p>
+
+          {/* Built with */}
+          <p style={{ color: "var(--text-3)", fontSize: 11 }}>
+            {t("built")}
+          </p>
         </div>
-        <p style={{ color: "#64748b", fontSize: 13 }}>
-          {t("status").replace("{year}", String(year))}
-        </p>
-        <p style={{ color: "#374151", fontSize: 11, marginTop: 8 }}>{t("built")}</p>
       </div>
     </footer>
   );

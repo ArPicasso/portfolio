@@ -1,18 +1,19 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useLocale } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
 
 const LANGS = [
-  { code: "en", flag: "🇬🇧", label: "English" },
-  { code: "de", flag: "🇩🇪", label: "Deutsch" },
-  { code: "ka", flag: "🇬🇪", label: "ქართული" },
+  { code: "en", flag: "🇬🇧", label: "English",  short: "EN" },
+  { code: "de", flag: "🇩🇪", label: "Deutsch",  short: "DE" },
+  { code: "ka", flag: "🇬🇪", label: "ქართული", short: "KA" },
 ] as const;
 
 export default function LanguageSwitcher() {
-  const locale = useLocale();
-  const router = useRouter();
+  const locale  = useLocale();
+  const router  = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -21,9 +22,7 @@ export default function LanguageSwitcher() {
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -31,115 +30,138 @@ export default function LanguageSwitcher() {
 
   const switchLocale = (code: string) => {
     setOpen(false);
-    const segments = pathname.split("/");
-    segments[1] = code;
-    router.push(segments.join("/") || `/${code}`);
+    const segs = pathname.split("/");
+    segs[1] = code;
+    router.push(segs.join("/") || `/${code}`);
   };
 
   return (
     <div ref={ref} style={{ position: "relative" }}>
+      {/* Trigger */}
       <button
         onClick={() => setOpen(!open)}
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 6,
-          background: "rgba(0,255,136,0.06)",
-          border: "1px solid rgba(0,255,136,0.2)",
-          borderRadius: 6,
+          gap: 7,
+          background: open ? "rgba(0,255,136,0.1)" : "var(--bg-card)",
+          border: `1px solid ${open ? "rgba(0,255,136,0.35)" : "var(--border)"}`,
+          borderRadius: 8,
           padding: "6px 12px",
           cursor: "pointer",
-          color: "#e2e8f0",
+          color: "var(--text-1)",
           fontSize: 13,
           fontFamily: "inherit",
-          fontWeight: 500,
-          transition: "all 0.2s",
+          fontWeight: 600,
+          transition: "all 0.2s ease",
           whiteSpace: "nowrap",
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = "rgba(0,255,136,0.5)";
-          e.currentTarget.style.background = "rgba(0,255,136,0.1)";
+          if (!open) {
+            e.currentTarget.style.borderColor = "rgba(0,255,136,0.3)";
+            e.currentTarget.style.background = "rgba(0,255,136,0.07)";
+          }
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.borderColor = "rgba(0,255,136,0.2)";
-          e.currentTarget.style.background = "rgba(0,255,136,0.06)";
+          if (!open) {
+            e.currentTarget.style.borderColor = "var(--border)";
+            e.currentTarget.style.background = "var(--bg-card)";
+          }
         }}
         aria-label="Switch language"
+        aria-expanded={open}
       >
-        <span style={{ fontSize: 16 }}>{current.flag}</span>
-        <span style={{ color: "#00ff88" }}>{current.code.toUpperCase()}</span>
-        <span
-          style={{
-            fontSize: 10,
-            color: "#64748b",
-            marginLeft: 2,
-            transform: open ? "rotate(180deg)" : "rotate(0deg)",
-            transition: "transform 0.2s",
-            display: "inline-block",
-          }}
+        <span style={{ fontSize: 15, lineHeight: 1 }}>{current.flag}</span>
+        <span style={{ color: "var(--green)", letterSpacing: "0.5px" }}>{current.short}</span>
+        <motion.span
+          animate={{ rotate: open ? 180 : 0 }}
+          transition={{ duration: 0.2 }}
+          style={{ fontSize: 9, color: "var(--text-3)", display: "inline-block", marginLeft: 1 }}
         >
           ▾
-        </span>
+        </motion.span>
       </button>
 
-      {open && (
-        <div
-          style={{
-            position: "absolute",
-            top: "calc(100% + 8px)",
-            right: 0,
-            background: "#111118",
-            border: "1px solid rgba(0,255,136,0.2)",
-            borderRadius: 8,
-            overflow: "hidden",
-            zIndex: 200,
-            minWidth: 150,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.5), 0 0 20px rgba(0,255,136,0.05)",
-          }}
-        >
-          {LANGS.map((lang) => (
-            <button
-              key={lang.code}
-              onClick={() => switchLocale(lang.code)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                width: "100%",
-                padding: "10px 16px",
-                background: lang.code === locale ? "rgba(0,255,136,0.08)" : "transparent",
-                border: "none",
-                borderBottom: "1px solid rgba(255,255,255,0.04)",
-                cursor: "pointer",
-                color: lang.code === locale ? "#00ff88" : "#94a3b8",
-                fontSize: 13,
-                fontFamily: "inherit",
-                fontWeight: lang.code === locale ? 600 : 400,
-                textAlign: "left",
-                transition: "all 0.15s",
-              }}
-              onMouseEnter={(e) => {
-                if (lang.code !== locale) {
-                  e.currentTarget.style.background = "rgba(255,255,255,0.04)";
-                  e.currentTarget.style.color = "#e2e8f0";
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (lang.code !== locale) {
-                  e.currentTarget.style.background = "transparent";
-                  e.currentTarget.style.color = "#94a3b8";
-                }
-              }}
-            >
-              <span style={{ fontSize: 18 }}>{lang.flag}</span>
-              <span>{lang.label}</span>
-              {lang.code === locale && (
-                <span style={{ marginLeft: "auto", color: "#00ff88", fontSize: 11 }}>✓</span>
-              )}
-            </button>
-          ))}
-        </div>
-      )}
+      {/* Dropdown */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -6, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.97 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            style={{
+              position: "absolute",
+              top: "calc(100% + 8px)",
+              right: 0,
+              background: "var(--bg-card)",
+              border: "1px solid var(--border)",
+              borderRadius: 10,
+              overflow: "hidden",
+              zIndex: 300,
+              minWidth: 155,
+              boxShadow: "0 16px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04)",
+            }}
+          >
+            {LANGS.map((lang, i) => {
+              const isActive = lang.code === locale;
+              return (
+                <motion.button
+                  key={lang.code}
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.04 }}
+                  onClick={() => switchLocale(lang.code)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    width: "100%",
+                    padding: "10px 14px",
+                    background: isActive ? "rgba(0,255,136,0.08)" : "transparent",
+                    border: "none",
+                    borderBottom: i < LANGS.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
+                    cursor: "pointer",
+                    color: isActive ? "var(--green)" : "var(--text-2)",
+                    fontSize: 13,
+                    fontFamily: "inherit",
+                    fontWeight: isActive ? 600 : 400,
+                    textAlign: "left",
+                    transition: "background 0.15s, color 0.15s",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+                      e.currentTarget.style.color = "var(--text-1)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.background = "transparent";
+                      e.currentTarget.style.color = "var(--text-2)";
+                    }
+                  }}
+                >
+                  <span style={{ fontSize: 17 }}>{lang.flag}</span>
+                  <span style={{ flex: 1 }}>{lang.label}</span>
+                  {isActive && (
+                    <span
+                      style={{
+                        width: 6,
+                        height: 6,
+                        borderRadius: "50%",
+                        background: "var(--green)",
+                        boxShadow: "0 0 6px var(--green)",
+                        flexShrink: 0,
+                      }}
+                    />
+                  )}
+                </motion.button>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
